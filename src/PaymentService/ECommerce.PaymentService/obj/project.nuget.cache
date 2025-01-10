@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "r8ApB9LfkV8=",
+  "success": true,
+  "projectFilePath": "/Users/sezerkenar/Desktop/office-projects/CSharp/Ecommerce/src/PaymentService/ECommerce.PaymentService/ECommerce.PaymentService.csproj",
+  "expectedPackageFiles": [
+    "/Users/sezerkenar/.nuget/packages/microsoft.aspnetcore.openapi/9.0.0/microsoft.aspnetcore.openapi.9.0.0.nupkg.sha512",
+    "/Users/sezerkenar/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

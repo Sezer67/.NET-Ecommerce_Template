@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "JEJ2dfEJKAbAi7eu7GkxxFvYNFY1x3UzRzOyRl+1AMs=",
+  "Source": "ECommerce.ProductService",
+  "BasePath": "_content/ECommerce.ProductService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

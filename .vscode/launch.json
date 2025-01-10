@@ -1,0 +1,85 @@
+{
+    "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "APIGateway and MicroServices",
+            "configurations": ["APIGateway", "UserService", "CartService", "ProductService"]
+        }
+    ],
+    "configurations": [
+        {
+            "name": "APIGateway",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/APIGateway/ECommerce.APIGateway/bin/Debug/net9.0/ECommerce.APIGateway.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/APIGateway/ECommerce.APIGateway",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": "UserService",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/UserService/ECommerce.UserService/bin/Debug/net9.0/ECommerce.UserService.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/UserService/ECommerce.UserService",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": "CartService",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/CartService/ECommerce.CartService/bin/Debug/net9.0/ECommerce.CartService.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/CartService/ECommerce.CartService",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": "SearchService",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/SearchService/ECommerce.SearchService/bin/Debug/net9.0/ECommerce.SearchService.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/SearchService/ECommerce.SearchService",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": "ProductService",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/ProductService/ECommerce.ProductService/bin/Debug/net9.0/ECommerce.ProductService.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/ProductService/ECommerce.ProductService",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ]
+}
