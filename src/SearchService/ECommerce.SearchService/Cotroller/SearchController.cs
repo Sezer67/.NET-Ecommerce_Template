@@ -21,12 +21,18 @@ public class SearchController : ControllerBase
         return Ok(products);
     }
 
-// todo: ProductService bir ürün eklediğinde, HTTP üzerinden SearchService API'sine bir çağrı yaparak ürünü indeksler.
     [HttpPost("index-product")]
     public async Task<IActionResult> IndexProduct([FromBody] Product product)
     {
         await _elasticSearchService.IndexProductAsync(product);
         return Ok("Product indexed successfully.");
+    }
+
+    [HttpPost("bulk-index-products")]
+    public async Task<IActionResult> BulkIndexProducts([FromBody] IEnumerable<Product> products)
+    {
+        await _elasticSearchService.BulkIndexAsync(products);
+        return Ok("Products indexed successfully.");
     }
 
 

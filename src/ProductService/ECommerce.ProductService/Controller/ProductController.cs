@@ -1,6 +1,7 @@
 using ECommerce.ProductService.Data;
 using ECommerce.ProductService.Dto;
 using ECommerce.ProductService.Model;
+using ECommerce.ProductService.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,9 +11,11 @@ namespace ECommerce.ProductService.Controller;
 [Route("api/[controller]")]
 public class ProductController : ControllerBase {
     private readonly ProductDbContext _context;
+    private readonly ISearchService _searchService;
 
-    public ProductController(ProductDbContext context) {
+    public ProductController(ProductDbContext context, ISearchService searchService) {
         _context = context;
+        _searchService = searchService;
     }
 
     [HttpGet]
@@ -53,7 +56,7 @@ public class ProductController : ControllerBase {
             return BadRequest(new { message = "Category not found" });
         }
 
-        var Product = new Product {
+        var product = new Product {
             Name = body.Name,
             Description = body.Description,
             Price = body.Price,
@@ -61,21 +64,29 @@ public class ProductController : ControllerBase {
             CategoryId = body.CategoryId,
         };
 
-        _context.Products.Add(Product);
+        _context.Products.Add(product);
         await _context.SaveChangesAsync();
 
         foreach (int tagId in body.TagIds) {
             var productTag = new ProductTags {
-                ProductId = Product.Id,
+                ProductId = product.Id,
                 TagId = tagId,
             };
             _context.ProductTags.Add(productTag);
         }
 
         await _context.SaveChangesAsync();
-
-        return Ok(Product);
+        // Elasticsearch'e indexle
+        await _searchService.IndexProductAsync(product);
+        return Ok(product);
         // return CreatedAtAction(nameof(GetProduct), new { id = Product.Id }, Product);
     }
 
+    [HttpPost("bulk-index")]
+    public async Task<ActionResult> BulkIndexProducts()
+    {
+        var products = await _context.Products.ToListAsync();
+        await _searchService.BulkIndexProductsAsync(products);
+        return Ok(new { message = $"{products.Count} products indexed successfully" });
+    }
 }

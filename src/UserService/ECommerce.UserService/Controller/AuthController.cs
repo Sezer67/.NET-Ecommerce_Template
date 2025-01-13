@@ -2,6 +2,7 @@ using ECommerce.UserService.Dto;
 using ECommerce.UserService.Model;
 using ECommerce.UserService.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.UserService.Controller;
 
@@ -17,6 +18,11 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
+    [HttpGet("allUsers")]
+    public async Task<ActionResult> getAllUsers(){
+        var users = await _context.Users.ToListAsync();
+        return Ok(users);
+    }
     [HttpPost("register")]
     public async Task<ActionResult> register(UserDto user)
     {

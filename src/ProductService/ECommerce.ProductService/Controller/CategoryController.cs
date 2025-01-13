@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ECommerce.ProductService.Controller;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/product/[controller]")]
 public class CategoryController : ControllerBase
 {
     private readonly ProductDbContext _context;
