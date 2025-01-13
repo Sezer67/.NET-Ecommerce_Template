@@ -46,16 +46,49 @@ namespace ECommerce.SearchService.Service
         }
         public async Task<IEnumerable<Product>> SearchAsync(string query)
         {
-            var searchResponse = await _elasticClient.SearchAsync<Product>(s => s
-                .Query(q => q
-                    .MultiMatch(m => m
+            /*
+            Query içerisinde bu şekilde arama da yapılaiblir. Gayet basit ilerler
+            .MultiMatch(m => m
                         .Query(query)
                         .Fields(f => f
                             .Field(p => p.Name)
                             .Field(p => p.Description)
+                            .Field(p => p.Currency)
                         )
+                    )
+            */
+            var searchResponse = await _elasticClient.SearchAsync<Product>(s => s
+                .Query(q => q
+                    .Bool(b => b
+                        .Should(
+                            // Fuzzy arama - yazım hatalarına toleranslı
+                            sh => sh.Fuzzy(fz => fz
+                                .Field(f => f.Name)
+                                .Value(query)
+                                .Fuzziness(Fuzziness.Auto)
+                            ),
+                            // Wildcard arama - içinde geçen
+                            sh => sh.Wildcard(w => w
+                                .Field(f => f.Name)
+                                .Value($"*{query}*")
+                            ),
+                            // Description'da da ara
+                            sh => sh.Fuzzy(fz => fz
+                                .Field(f => f.Description)
+                                .Value(query)
+                                .Fuzziness(Fuzziness.Auto)
+                            ),
+                            sh => sh.Wildcard(w => w
+                                .Field(f => f.Description)
+                                .Value($"*{query}*")
+                            )
+                        )
+                    )
                 )
-            ));
+                .Sort(sort => sort
+                    .Descending(SortSpecialField.Score)
+                )
+            );
 
             if (!searchResponse.IsValid)
             {
@@ -84,6 +117,9 @@ namespace ECommerce.SearchService.Service
                                     .Analyzer("standard"))
                                 .Text(t => t
                                     .Name(n => n.Description)
+                                    .Analyzer("standard"))
+                                .Text(t => t
+                                    .Name(n => n.Currency)
                                     .Analyzer("standard"))
                                 .Number(n => n
                                     .Name(p => p.Price)
