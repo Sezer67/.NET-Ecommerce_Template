@@ -81,6 +81,11 @@ namespace ECommerce.SearchService.Service
                             sh => sh.Wildcard(w => w
                                 .Field(f => f.Description)
                                 .Value($"*{query}*")
+                            ),
+                            // Currency'de tam eşleşme ile ara
+                            sh => sh.Term(t => t
+                                .Field(f => f.Currency)
+                                .Value(query)
                             )
                         )
                     )
@@ -108,7 +113,14 @@ namespace ECommerce.SearchService.Service
                     var createIndexResponse = await _elasticClient.Indices.CreateAsync("products", c => c
                         .Settings(s => s
                             .NumberOfShards(1)
-                            .NumberOfReplicas(1))
+                            .NumberOfReplicas(1)
+                            .Analysis(a => a
+                                .Normalizers(n => n
+                                    .Custom("lowercase_normalizer", cn => cn
+                                        .Filters("lowercase")
+                                    )
+                                )
+                            ))
                         .Map<Product>(m => m
                             .AutoMap()
                             .Properties(ps => ps
@@ -118,9 +130,9 @@ namespace ECommerce.SearchService.Service
                                 .Text(t => t
                                     .Name(n => n.Description)
                                     .Analyzer("standard"))
-                                .Text(t => t
+                                .Keyword(k => k
                                     .Name(n => n.Currency)
-                                    .Analyzer("standard"))
+                                    .Normalizer("lowercase_normalizer"))
                                 .Number(n => n
                                     .Name(p => p.Price)
                                     .Type(NumberType.Double))
