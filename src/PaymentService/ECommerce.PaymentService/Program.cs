@@ -19,7 +19,7 @@ builder.Services.AddDbContext<PaymentDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Craftgate Service
-builder.Services.AddScoped<ICraftgatePaymentService, CraftgatePaymentService>();
+// builder.Services.AddScoped<ICraftgatePaymentService, CraftgatePaymentService>();
 
 var app = builder.Build();
 

@@ -26,7 +26,20 @@ public class SearchService : ISearchService
             Name = product.Name,
             Description = product.Description,
             Price = product.Price,
-            Currency = product.Currency
+            Currency = product.Currency,
+            Slug = product.Slug,
+            IsActive = product.IsActive,
+            StockQuantity = product.StockQuantity,
+            CreatedAt = product.CreatedAt,
+            Categories = product.ProductCategories.Select(pc => new {
+                Id = pc.Category.Id,
+                Name = pc.Category.Name,
+                Path = pc.Category.Path,
+                Level = pc.Category.Level,
+                IsPrimary = pc.IsPrimary
+            }).ToList(),
+            Tags = product.ProductTags.Select(pt => pt.Tag.Name).ToList(),
+            CategoryPaths = product.ProductCategories.Select(pc => pc.Category.Path).ToList()
         };
 
         var response = await _httpClient.PostAsJsonAsync("api/search/index-product", searchProduct);
@@ -35,13 +48,26 @@ public class SearchService : ISearchService
 
     public async Task BulkIndexProductsAsync(IEnumerable<Product> products)
     {
-        var searchProducts = products.Select(p => new
+        var searchProducts = products.Select(product =>  new
         {
-            Id = p.Id,
-            Name = p.Name,
-            Description = p.Description,
-            Price = p.Price,
-            Currency = p.Currency
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Currency = product.Currency,
+            Slug = product.Slug,
+            IsActive = product.IsActive,
+            StockQuantity = product.StockQuantity,
+            CreatedAt = product.CreatedAt,
+            Categories = product.ProductCategories.Select(pc => new {
+                Id = pc.Category.Id,
+                Name = pc.Category.Name,
+                Path = pc.Category.Path,
+                Level = pc.Category.Level,
+                IsPrimary = pc.IsPrimary
+            }).ToList(),
+            Tags = product.ProductTags.Select(pt => pt.Tag.Name).ToList(),
+            CategoryPaths = product.ProductCategories.Select(pc => pc.Category.Path).ToList()
         });
 
         var response = await _httpClient.PostAsJsonAsync("api/search/bulk-index-products", searchProducts);

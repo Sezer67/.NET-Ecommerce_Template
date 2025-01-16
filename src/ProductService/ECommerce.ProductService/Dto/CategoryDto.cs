@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using ECommerce.ProductService.Model;
 
 namespace ECommerce.ProductService.Dto
 {
@@ -10,5 +7,27 @@ namespace ECommerce.ProductService.Dto
     {
         [Required(ErrorMessage = "Name is required")]
         public required string Name { get; set; }
+        public string? Description { get; set; }
+        public int? ParentCategoryId { get; set; }
+    }
+
+    public class GetCategoryDto
+    {
+        public int Id { get; set; }
+        public required string Name { get; set; }
+        public string? Description { get; set; }
+        public int? ParentCategoryId { get; set; }
+        public string Slug { get; set; } = string.Empty;
+        public int Level { get; set; }
+        public string Path { get; set; } = string.Empty;
+        public Category? ParentCategory { get; set; }
+        public ICollection<Category> SubCategories { get; set; } = new List<Category>();
+    }
+
+    public class UpdateCategoryDto
+    {
+        public required string Name { get; set; }
+        public string? Description { get; set; }
+        public int? ParentCategoryId { get; set; }
     }
 }

@@ -3,7 +3,7 @@
     "compounds": [
         {
             "name": "APIGateway and MicroServices",
-            "configurations": ["APIGateway", "UserService", "CartService", "ProductService"]
+            "configurations": ["APIGateway", "UserService", "CartService", "ProductService", "SearchService"]
         }
     ],
     "configurations": [

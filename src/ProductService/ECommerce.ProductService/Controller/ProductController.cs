@@ -9,7 +9,8 @@ namespace ECommerce.ProductService.Controller;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductController : ControllerBase {
+public class ProductController : ControllerBase
+{
     private readonly ProductDbContext _context;
     private readonly ISearchService _searchService;
 
@@ -19,74 +20,193 @@ public class ProductController : ControllerBase {
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProducts() {
-        var products = await _context.Products.Include(p => p.Category).ToListAsync();
-        return Ok(products);
+    public async Task<ActionResult<IEnumerable<GetProductDto>>> GetProducts()
+    {
+        var products = await _context.Products
+            .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
+            .Include(p => p.ProductTags)
+                .ThenInclude(pt => pt.Tag)
+            .ToListAsync();
+
+        var result = products.Select(p => new GetProductDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Description = p.Description,
+            Price = p.Price,
+            Currency = p.Currency,
+            Slug = p.Slug,
+            MetaTitle = p.MetaTitle,
+            MetaDescription = p.MetaDescription,
+            MetaKeywords = p.MetaKeywords,
+            Categories = p.ProductCategories.Select(pc => pc.Category).ToList(),
+            Tags = p.ProductTags.Select(pt => pt.Tag.Name).ToList()
+        });
+
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<GetProductDto>> GetProduct(int id) {
+    public async Task<ActionResult<GetProductDto>> GetProduct(int id)
+    {
         var product = await _context.Products
-            .Include(p => p.Category)
+            .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
             .Include(p => p.ProductTags)
-            .ThenInclude(pt => pt.Tag)
+                .ThenInclude(pt => pt.Tag)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        if(product == null) {
+        if (product == null)
+        {
             return NotFound();
         }
 
-        var response = new GetProductDto {
+        var result = new GetProductDto
+        {
             Id = product.Id,
             Name = product.Name,
             Description = product.Description,
             Price = product.Price,
             Currency = product.Currency,
-            Category = product.Category,
-            Tags = product.ProductTags.Select(pt => pt.Tag.Name).ToList(),
+            Slug = product.Slug,
+            MetaTitle = product.MetaTitle,
+            MetaDescription = product.MetaDescription,
+            MetaKeywords = product.MetaKeywords,
+            Categories = product.ProductCategories.Select(pc => pc.Category).ToList(),
+            Tags = product.ProductTags.Select(pt => pt.Tag.Name).ToList()
         };
 
-        return Ok(response);
+        return result;
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateProduct([FromBody] CreateProductDto body) {
-        var category = await _context.Categories.FindAsync(body.CategoryId);
-        if(category == null) {
-            return BadRequest(new { message = "Category not found" });
+    public async Task<ActionResult<GetProductDto>> CreateProduct(CreateProductDto dto)
+    {
+        var product = new Product
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            Price = dto.Price,
+            Currency = dto.Currency,
+            StockQuantity = dto.StockQuantity,
+            Slug = GenerateSlug(dto.Name)
+        };
+
+        if (dto.CategoryIds != null)
+        {
+            foreach (var categoryId in dto.CategoryIds)
+            {
+                var category = await _context.Categories.FindAsync(categoryId);
+                if (category == null)
+                {
+                    return BadRequest($"Category with id {categoryId} not found");
+                }
+                product.AddCategory(category, dto.PrimaryCategoryId == categoryId);
+            }
         }
 
-        var product = new Product {
-            Name = body.Name,
-            Description = body.Description,
-            Price = body.Price,
-            Currency = body.Currency,
-            CategoryId = body.CategoryId,
-        };
+        if (dto.TagIds != null)
+        {
+            foreach (var tagId in dto.TagIds)
+            {
+                var tag = await _context.Tags.FindAsync(tagId);
+                if(tag == null) {
+                    return BadRequest($"Tag with id {tagId} not found");
+                }
+                product.AddTag(tag);
+            }
+        }
 
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 
-        foreach (int tagId in body.TagIds) {
-            var productTag = new ProductTags {
-                ProductId = product.Id,
-                TagId = tagId,
-            };
-            _context.ProductTags.Add(productTag);
+        // Elasticsearch ile product'ı indexle
+        await _searchService.IndexProductAsync(product);
+
+        return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateProduct(int id, UpdateProductDto dto)
+    {
+        var product = await _context.Products
+            .Include(p => p.ProductCategories)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        product.Name = dto.Name;
+        product.Description = dto.Description;
+        product.Price = dto.Price;
+        product.Currency = dto.Currency;
+        product.StockQuantity = dto.StockQuantity;
+        product.UpdatedAt = DateTime.UtcNow;
+
+        // Kategorileri güncelle
+        if (dto.CategoryIds != null)
+        {
+            // Mevcut kategorileri temizle
+            product.ProductCategories.Clear();
+
+            // Yeni kategorileri ekle
+            foreach (var categoryId in dto.CategoryIds)
+            {
+                var category = await _context.Categories.FindAsync(categoryId);
+                if (category == null)
+                {
+                    return BadRequest($"Category with id {categoryId} not found");
+                }
+                product.AddCategory(category, dto.PrimaryCategoryId == categoryId);
+            }
         }
 
         await _context.SaveChangesAsync();
-        // Elasticsearch'e indexle
-        await _searchService.IndexProductAsync(product);
-        return Ok(product);
-        // return CreatedAtAction(nameof(GetProduct), new { id = Product.Id }, Product);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        // Soft delete
+        product.IsDeleted = true;
+        product.DeletedAt = DateTime.UtcNow;
+        
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 
     [HttpPost("bulk-index")]
-    public async Task<ActionResult> BulkIndexProducts()
+    public async Task<IActionResult> BulkIndexProducts()
     {
-        var products = await _context.Products.ToListAsync();
+        var products = await _context.Products
+            .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
+            .Include(p => p.ProductTags)
+                .ThenInclude(pt => pt.Tag)
+            .ToListAsync();
         await _searchService.BulkIndexProductsAsync(products);
-        return Ok(new { message = $"{products.Count} products indexed successfully" });
+        return Ok();
+    }
+
+    private static string GenerateSlug(string name)
+    {
+        return name.ToLower()
+            .Replace(" ", "-")
+            .Replace("ı", "i")
+            .Replace("ğ", "g")
+            .Replace("ü", "u")
+            .Replace("ş", "s")
+            .Replace("ö", "o")
+            .Replace("ç", "c");
     }
 }
