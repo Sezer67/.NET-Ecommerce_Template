@@ -2,6 +2,7 @@ using ECommerce.ProductService.Data;
 using ECommerce.ProductService.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,23 @@ builder.Services.AddHttpClient("SearchService", client =>
 {
     client.BaseAddress = new Uri("http://localhost:5256/"); // Search Service'in portu
 });
+
+// Redis Configuration
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379"));
+
+builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+builder.Services.AddScoped<ICategoryCacheService, CategoryCacheService>();
+
+// Domain Services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+// Dependencyy
+// CategoryController
+//     └── ICategoryService (CategoryService)
+//         └── ICategoryCacheService (CategoryCacheService)
+//             └── IRedisCacheService (RedisCacheService)
+//                 └── IConnectionMultiplexer
 
 // Register Search Service
 builder.Services.AddScoped<ISearchService, SearchService>();

@@ -1,9 +1,11 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using ECommerce.CartService.Contracts;
 
 namespace ECommerce.CartService.Dto
 {
-    public class CreateCartDto {
+    public class CreateCartDto
+    {
         [Required(ErrorMessage = "UserId is required")]
         public int UserId { get; set; }
         [Required(ErrorMessage = "ProductId is required")]
@@ -15,29 +17,20 @@ namespace ECommerce.CartService.Dto
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public List<CartItemWithProductDto> CartItems { get; set; } = new List<CartItemWithProductDto>();
+        public List<CartItemDto> CartItems { get; set; } = new();
+        public decimal TotalAmount { get; set; }
     }
 
-    public class CartItemWithProductDto {
+    public class CartItemDto
+    {
         public int Id { get; set; }
-        public int ProductId { get; set; }
+        public ProductContract Product { get; set; } = null!;
         public int Quantity { get; set; }
-        public int CartId { get; set; }
-        public required Product Product { get; set; }
     }
 
-    public class Product {
-        public int Id { get; set; }
-        public required string Name { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public required string Currency { get; set; } = "TRY";
-        public required CategoryDto Category { get; set; } = new CategoryDto { Id = 0, Name = "" };
-        public List<string> Tags { get; set; } = new List<string>();
-    }
-
-    public class CategoryDto {
-        public int Id { get; set; }
-        public required string Name { get; set; }
+    public class AddToCartDto
+    {
+        public required int ProductId { get; set; }
+        public int Quantity { get; set; } = 1;
     }
 }

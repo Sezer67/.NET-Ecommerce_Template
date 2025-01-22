@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.CartService.Migrations
 {
     [DbContext(typeof(CartDbContext))]
-    [Migration("20250114141830_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250116145446_AddIsClosedToCart")]
+    partial class AddIsClosedToCart
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,9 @@ namespace ECommerce.CartService.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("UserId")

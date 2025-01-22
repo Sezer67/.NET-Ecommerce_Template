@@ -41,7 +41,8 @@ public class ProductController : ControllerBase
             MetaDescription = p.MetaDescription,
             MetaKeywords = p.MetaKeywords,
             Categories = p.ProductCategories.Select(pc => pc.Category).ToList(),
-            Tags = p.ProductTags.Select(pt => pt.Tag.Name).ToList()
+            Tags = p.ProductTags.Select(pt => pt.Tag.Name).ToList(),
+            StockQuantity = p.StockQuantity,
         });
 
         return Ok(result);
@@ -74,7 +75,8 @@ public class ProductController : ControllerBase
             MetaDescription = product.MetaDescription,
             MetaKeywords = product.MetaKeywords,
             Categories = product.ProductCategories.Select(pc => pc.Category).ToList(),
-            Tags = product.ProductTags.Select(pt => pt.Tag.Name).ToList()
+            Tags = product.ProductTags.Select(pt => pt.Tag.Name).ToList(),
+            StockQuantity = product.StockQuantity,
         };
 
         return result;
@@ -139,12 +141,21 @@ public class ProductController : ControllerBase
             return NotFound();
         }
 
-        product.Name = dto.Name;
-        product.Description = dto.Description;
-        product.Price = dto.Price;
-        product.Currency = dto.Currency;
-        product.StockQuantity = dto.StockQuantity;
+        product.Name = dto.Name ?? product.Name;
+        product.Description = dto.Description ?? product.Description;
+        product.Price = dto.Price ?? product.Price;
+        product.Currency = dto.Currency ?? product.Currency;
         product.UpdatedAt = DateTime.UtcNow;
+
+        // StockQuantity'u güncelle
+        if (dto.StockQuantity != null)
+        {
+            if(dto.StockQuantity.Value < 0) {
+                product.StockQuantity = product.StockQuantity + dto.StockQuantity.Value;
+            } else {
+                product.StockQuantity = dto.StockQuantity.Value;
+            }
+        }
 
         // Kategorileri güncelle
         if (dto.CategoryIds != null)

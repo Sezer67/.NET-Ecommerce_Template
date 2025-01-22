@@ -13,5 +13,6 @@ namespace ECommerce.CartService.Model
         public required int UserId { get; set; }
         [JsonIgnore]
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public bool IsDeleted { get; set; } = false;
     }
 }

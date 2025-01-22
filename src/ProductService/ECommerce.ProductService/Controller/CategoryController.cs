@@ -1,6 +1,7 @@
 using ECommerce.ProductService.Data;
 using ECommerce.ProductService.Dto;
 using ECommerce.ProductService.Model;
+using ECommerce.ProductService.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,17 +11,18 @@ namespace ECommerce.ProductService.Controller;
 [Route("api/product/[controller]")]
 public class CategoryController : ControllerBase
 {
-    private readonly ProductDbContext _context;
+    private readonly ICategoryService _categoryService;
 
-    public CategoryController(ProductDbContext context)
+    public CategoryController(ICategoryService categoryService)
     {
-        _context = context;
+        _categoryService = categoryService;
     }
 
     // Tüm kategorileri hiyerarşik yapıda getir
     [HttpGet]
     public async Task<ActionResult<IEnumerable<GetCategoryDto>>> GetCategories()
     {
+        /*
         // Sadece root (üst) kategorileri getir, Include ile alt kategorileri de yükle
         var categories = await _context.Categories
             .Include(c => c.SubCategories)
@@ -40,38 +42,42 @@ public class CategoryController : ControllerBase
         });
 
         return Ok(result);
+        */
+        var categories = await _categoryService.GetCategoriesAsync();
+        return Ok(categories);
     }
 
     // Tek bir kategoriyi detaylı getir
     [HttpGet("{id}")]
     public async Task<ActionResult<GetCategoryDto>> GetCategory(int id)
     {
-        var category = await _context.Categories
-            .Include(c => c.SubCategories)
-            .Include(c => c.ParentCategory)
-            .FirstOrDefaultAsync(c => c.Id == id);
+        // var category = await _context.Categories
+        //     .Include(c => c.SubCategories)
+        //     .Include(c => c.ParentCategory)
+        //     .FirstOrDefaultAsync(c => c.Id == id);
+        var category = await _categoryService.GetCategoryByIdAsync(id);
 
         if (category == null)
         {
             return NotFound();
         }
 
-        var result = new GetCategoryDto
-        {
-            Id = category.Id,
-            Name = category.Name,
-            Description = category.Description,
-            ParentCategoryId = category.ParentCategoryId,
-            Slug = category.Slug,
-            Level = category.Level,
-            Path = category.Path,
-            ParentCategory = category.ParentCategory,
-            SubCategories = category.SubCategories
-        };
-
-        return result;
+        // var result = new GetCategoryDto
+        // {
+        //     Id = category.Id,
+        //     Name = category.Name,
+        //     Description = category.Description,
+        //     ParentCategoryId = category.ParentCategoryId,
+        //     Slug = category.Slug,
+        //     Level = category.Level,
+        //     Path = category.Path,
+        //     ParentCategory = category.ParentCategory,
+        //     SubCategories = category.SubCategories
+        // };
+        
+        return Ok(category);
     }
-
+/*
     [HttpPost]
     public async Task<ActionResult<GetCategoryDto>> CreateCategory(CreateCategoryDto dto)
     {
@@ -198,4 +204,5 @@ public class CategoryController : ControllerBase
             .Replace("ö", "o")
             .Replace("ç", "c");
     }
+*/
 }

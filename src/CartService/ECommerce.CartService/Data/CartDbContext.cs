@@ -22,6 +22,8 @@ namespace ECommerce.CartService.Data
                 .HasMany(c => c.CartItems)
                 .WithOne(ci => ci.Cart)
                 .HasForeignKey(ci => ci.CartId);
+
+            modelBuilder.Entity<Cart>().HasQueryFilter(c => !c.IsDeleted);
         }
     }
 }

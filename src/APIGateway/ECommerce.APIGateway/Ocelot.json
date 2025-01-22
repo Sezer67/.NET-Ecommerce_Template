@@ -47,6 +47,18 @@
         "SwaggerKey": "search",
         "StripUpstreamPathTemplate": true,
         "StripDownstreamPathTemplate": false
+      },
+      {
+        "DownstreamPathTemplate": "/api/payment/{everything}",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          { "Host": "localhost", "Port": 5250 }
+        ],
+        "UpstreamPathTemplate": "/payment/{everything}",
+        "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+        "SwaggerKey": "payment",
+        "StripUpstreamPathTemplate": true,
+        "StripDownstreamPathTemplate": false
       }
     ],
     "GlobalConfiguration": {
@@ -86,7 +98,6 @@
           }
         ]
       },
-
       {
         "Key": "search",
         "TransformByOcelotConfig": true,
@@ -95,6 +106,17 @@
             "Name": "Search API",
             "Version": "v1",
             "Url": "http://localhost:5256/swagger/v1/swagger.json"
+          }
+        ]
+      },
+      {
+        "Key": "payment",
+        "TransformByOcelotConfig": true,
+        "Config": [
+          {
+            "Name": "Payment API",
+            "Version": "v1",
+            "Url": "http://localhost:5250/swagger/v1/swagger.json"
           }
         ]
       }

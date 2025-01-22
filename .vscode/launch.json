@@ -3,7 +3,7 @@
     "compounds": [
         {
             "name": "APIGateway and MicroServices",
-            "configurations": ["APIGateway", "UserService", "CartService", "ProductService", "SearchService"]
+            "configurations": ["APIGateway", "UserService", "CartService", "ProductService", "SearchService", "PaymentService"]
         }
     ],
     "configurations": [
@@ -71,6 +71,19 @@
             "program": "${workspaceFolder}/src/ProductService/ECommerce.ProductService/bin/Debug/net9.0/ECommerce.ProductService.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/ProductService/ECommerce.ProductService",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": "PaymentService",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/PaymentService/ECommerce.PaymentService/bin/Debug/net9.0/ECommerce.PaymentService.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/PaymentService/ECommerce.PaymentService",
             "stopAtEntry": false,
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"

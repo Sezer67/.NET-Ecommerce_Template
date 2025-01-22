@@ -29,11 +29,11 @@ public class GetProductDto : Product
 
 public class UpdateProductDto
 {
-    public required string Name { get; set; }
-    public string Description { get; set; } = string.Empty;
-    public decimal Price { get; set; }
-    public string Currency { get; set; } = "TRY";
-    public int StockQuantity { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public decimal? Price { get; set; }
+    public string? Currency { get; set; }
+    public int? StockQuantity { get; set; }
     public List<int>? CategoryIds { get; set; }
     public int? PrimaryCategoryId { get; set; }
 }

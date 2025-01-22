@@ -50,51 +50,6 @@ namespace ECommerce.PaymentService.Controllers
             }
         }
 
-        [HttpPost("wallet")]
-        public async Task<ActionResult<PaymentResponseDto>> CreateWalletPayment([FromBody] CreateWalletPaymentDto paymentDto)
-        {
-            try
-            {
-                var response = await _paymentService.CreateWalletPaymentAsync(paymentDto);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating wallet payment");
-                return StatusCode(500, "An error occurred while processing your payment");
-            }
-        }
-
-        [HttpPost("wallet/card")]
-        public async Task<ActionResult<WalletResponseDto>> SaveCard([FromBody] SaveCardRequest request)
-        {
-            try
-            {
-                var response = await _paymentService.SaveCardToWalletAsync(request);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving card to wallet");
-                return StatusCode(500, "An error occurred while saving your card");
-            }
-        }
-
-        [HttpGet("wallet/cards/{userId}")]
-        public async Task<ActionResult<IEnumerable<WalletCardDto>>> GetWalletCards(int userId)
-        {
-            try
-            {
-                var cards = await _paymentService.GetWalletCardsAsync(userId);
-                return Ok(cards);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving wallet cards");
-                return StatusCode(500, "An error occurred while retrieving your cards");
-            }
-        }
-
         [HttpGet("installments")]
         public async Task<ActionResult<InstallmentInfoDto>> GetInstallmentInfo([FromQuery] decimal amount, [FromQuery] string binNumber)
         {
