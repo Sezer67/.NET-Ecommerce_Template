@@ -78,7 +78,8 @@ namespace ECommerce.PaymentService.Services
                     ExpireMonth = paymentDto.ExpireMonth,
                     Cvc = paymentDto.Cvc
                 },
-                Items = paymentItems
+                Items = paymentItems,
+                Installment = 1,
             };
             
             PaymentResponse? paymentResponse = null;
