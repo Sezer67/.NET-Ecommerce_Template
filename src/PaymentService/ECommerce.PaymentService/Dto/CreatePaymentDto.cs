@@ -8,7 +8,7 @@ namespace ECommerce.PaymentService.Dto
         public required int CartId { get; set; }
         [DefaultValue("John Doe")]
         public required string CardHolderName { get; set; }
-        [DefaultValue("5258640000000001")]
+        [DefaultValue("4183420000000001")]
         public required string CardNumber { get; set; }
         [DefaultValue("07")]
         public required string ExpireMonth { get; set; }
